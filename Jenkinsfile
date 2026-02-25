@@ -17,7 +17,7 @@ pipeline {
                     sh 'echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER_ID} --password-stdin'
                     
                     // Build de l'image API
-                    sh "docker build -t ${DOCKER_USER}/${IMAGE_NAME}:latest ."
+                    sh "docker build --platform linux/amd64 -t ${DOCKER_USER}/${IMAGE_NAME}:latest ."
                     
                     // Push
                     sh "docker push ${DOCKER_USER}/${IMAGE_NAME}:latest"
