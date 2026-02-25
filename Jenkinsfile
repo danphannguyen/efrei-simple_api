@@ -9,24 +9,23 @@ pipeline {
 
     stages {
         stage('Build & Push API') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', 
-                                 passwordVariable: 'DOCKER_PASS', 
-                                 usernameVariable: 'DOCKER_USER_ID')]) {
-                    
-                    sh 'echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER_ID} --password-stdin'
-
-                    // On crée un builder qui supporte le multi-plateforme, puis on build                  
-                    sh """
-                        docker buildx create --use --name mybuilder || true
-                        docker buildx build --platform linux/amd64 -t ${DOCKER_USER}/${IMAGE_NAME}:latest --push .
-                    """
-                    
-                    // Push
-                    sh "docker push ${DOCKER_USER}/${IMAGE_NAME}:latest"
-                }
-            }
-        }
+          steps {
+              withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', 
+                              passwordVariable: 'DOCKER_PASS', 
+                              usernameVariable: 'DOCKER_USER_ID')]) {
+                  
+                  sh 'echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER_ID} --password-stdin'
+                  
+                  // On build ET on push en une seule fois avec buildx
+                  sh """
+                      docker buildx create --use --name mybuilder || true
+                      docker buildx build --platform linux/amd64 -t ${DOCKER_USER}/${IMAGE_NAME}:latest --push .
+                  """
+                  
+                  // SUPPRIME LA LIGNE : sh "docker push ${DOCKER_USER}/${IMAGE_NAME}:latest"
+              }
+          }
+      }
 
         stage('Deploy API to AWS') {
             steps {
