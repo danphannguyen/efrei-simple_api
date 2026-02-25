@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('Build & Push API') {
           steps {
-              withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', 
+              withCredentials([usernamePassword(credentialsId: 'docker-hub-creds', 
                               passwordVariable: 'DOCKER_PASS', 
                               usernameVariable: 'DOCKER_USER_ID')]) {
                   
