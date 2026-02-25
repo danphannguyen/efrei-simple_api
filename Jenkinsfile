@@ -15,9 +15,12 @@ pipeline {
                                  usernameVariable: 'DOCKER_USER_ID')]) {
                     
                     sh 'echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER_ID} --password-stdin'
-                    
-                    // Build de l'image API
-                    sh "docker build --platform linux/amd64 -t ${DOCKER_USER}/${IMAGE_NAME}:latest ."
+
+                    // On crée un builder qui supporte le multi-plateforme, puis on build                  
+                    sh """
+                        docker buildx create --use --name mybuilder || true
+                        docker buildx build --platform linux/amd64 -t ${DOCKER_USER}/${IMAGE_NAME}:latest --push .
+                    """
                     
                     // Push
                     sh "docker push ${DOCKER_USER}/${IMAGE_NAME}:latest"
